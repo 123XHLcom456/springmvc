@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电影修改页面</title>
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/axios.js"></script>
+    <script src="/static/js/getParameter.js"></script>
+</head>
+<body>
+    <div id="app">
+        <form action="javascript:;" method="post">
+            电影名称:<input type="text" name="movieName" v-model="movie.movieName"/><br/>
+            电影价格:<input type="text" name="moviePrice" v-model="movie.moviePrice"/><br/>
+            <button @click.prevent="updateMovie()">修改</button>
+        </form>
+    </div>
+
+    <script>
+        new Vue({
+            el:"#app",
+            data:{
+                movie:{
+                    movieId:null,
+                    movieName:"",
+                    moviePrice:null
+                }
+            },
+            methods:{
+                //发送异步请求根据movieId查询movie信息，并且回显到页面
+                findMovieById(){
+                    //1. 获取url路径上携带过来的movieId
+                    this.movie.movieId = getParameter("movieId")
+                    axios({
+                        url:"/movie/"+this.movie.movieId,
+                        method:"GET"
+                    }).then(response => {
+                        if (response.data.flag) {
+                            this.movie = response.data.resultData
+                        }
+                    })
+                },
+                updateMovie(){
+                    //发送异步请求进行修改电影
+                    axios({
+                        url:"/movie/"+this.movie.movieId,
+                        method:"PUT",
+                        data:this.movie
+                    }).then(response => {
+                        if (response.data.flag) {
+                            //跳转到list页面
+                            location.href = "/pages/list.html"
+                        }
+                    })
+                }
+            },
+            created(){
+                this.findMovieById()
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加电影页面</title>
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/axios.js"></script>
+</head>
+<body>
+    <div id="app">
+        <form action="/movie" method="post">
+            电影名称：<input type="text" name="movieName" v-model="movie.movieName"/><br/>
+            电影票价格：<input type="text" name="moviePrice" v-model="movie.moviePrice"/><br/>
+            <button type="submit" @click.prevent="insertMovie()">保存</button>
+        </form>
+    </div>
+
+    <script>
+        new Vue({
+            el:"#app",
+            data:{
+                movie:{
+                    movieName:"",
+                    moviePrice:null
+                }
+            },
+            methods:{
+                //发送异步请求添加电影
+                insertMovie(){
+                    axios({
+                        url:"/movie",
+                        method:"POST",
+                        data:this.movie
+                    }).then(response => {
+                        if (response.data.flag) {
+                            //跳转到list页面
+                            location.href = "/pages/list.html"
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+</html>

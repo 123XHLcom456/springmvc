@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电影列表显示页面</title>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            margin: 0px auto 0px auto;
+        }
+
+        table th, td {
+            border: 1px solid black;
+            text-align: center;
+        }
+    </style>
+    <!--引入vue和axios-->
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/axios.js"></script>
+</head>
+<body>
+<div id="app">
+    <table>
+        <thead>
+        <tr>
+            <th>电影ID</th>
+            <th>电影名称</th>
+            <th>电影票价格</th>
+            <th>删除</th>
+            <th>更新</th>
+        </tr>
+        </thead>
+        <tbody v-if="movieList != null && movieList.length > 0">
+        <tr v-for="movie in movieList">
+            <td v-text="movie.movieId"></td>
+            <td v-text="movie.movieName"></td>
+            <td v-text="movie.moviePrice"></td>
+            <td>
+                <a href="javascript:;" @click="deleteMovieById(movie.movieName,movie.movieId)">删除</a>
+            </td>
+            <td>
+                <a :href="'/pages/update.html?movieId='+movie.movieId">更新</a>
+            </td>
+        </tr>
+        </tbody>
+        <tbody v-else="movieList != null && movieList.length > 0">
+        <tr>
+            <td colspan="5">电影列表为空，请先添加电影</td>
+        </tr>
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td colspan="5">
+                    <a href="/pages/add.html">添加电影</a>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            movieList: []
+        },
+        methods: {
+            //发送异步请求获取电影列表
+            findAllMovieList() {
+                axios({
+                    url:"/movie",
+                    method:"GET"
+                }).then(response => {
+                    if (response.data.flag) {
+                        this.movieList = response.data.resultData
+                    }
+                })
+            },
+            deleteMovieById(movieName,movieId){
+                //弹出确认框
+                if (confirm("你确定要删除" + movieName + "吗?")) {
+                    //确定才删除
+                    axios({
+                        url:"/movie/"+movieId,
+                        method:"DELETE"
+                    }).then(response => {
+                        if (response.data.flag) {
+                            //重新查询所有
+                            this.findAllMovieList()
+                        }
+                    })
+                }
+            }
+        },
+        created() {
+            this.findAllMovieList()
+        }
+    })
+</script>
+</body>
+</html>
